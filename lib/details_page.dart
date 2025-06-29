@@ -470,7 +470,7 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
                     child: const Text('Exit', style: TextStyle(fontSize: 16)),
                   ),
                 ),
-                Expanded(
+                /*Expanded(
                   child: ElevatedButton(
                     onPressed: () {
                       _resetAllFormFields();
@@ -485,7 +485,7 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
                     ),
                     child: const Text('Reset', style: TextStyle(fontSize: 16)),
                   ),
-                ),
+                ),*/
               ],
             ),
             const SizedBox(height: 30),
