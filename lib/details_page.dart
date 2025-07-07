@@ -1,7 +1,6 @@
 // details_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For TextInputFormatter
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'dart:io';
@@ -38,20 +37,6 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    /*
-  _selectedPrefix = 'RX';
-  _selectedCrossingType = null;
-  _selectedCrossingLocation = null;
-  _selectedApproach = null;
-  _selectedPhotoCode = null;
-  _selectedAdhocCode = null;
-  _selectedCrossingNumberSuffix = null;
-  _selectedImageSeq = null;
-
-  _showCrossingNumberSuffix = false;
-  _showCrossingLocation = false;
-  _showAdhocSection = false;
-*/
     _configLoader = ConfigLoader();
     _tryLoadConfig();
 
@@ -142,7 +127,7 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
       // --- CRUCIAL CHANGE: Add a timeout to getCurrentPosition ---
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.low,
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 30));
 
       setState(() {
         _latitude = position.latitude.toStringAsFixed(
@@ -181,9 +166,6 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
     }
   }
 
-  // --- Delphi ComboBox Change Logic Translation ---
-
-  // --- Build File Name Logic (Based on Delphi's BuildFileName function) ---
   void _updateFileName() {
     // If we reach here, _dropdownManager is guaranteed to be non-null.
     // Use a local non-nullable variable for cleaner access.
@@ -220,7 +202,7 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
       }
 
       s += photoCode ?? '';
-      if (_showAdhocSection) {
+      if (dropdownManager.selections['Approach'] == 'Adhoc Code') {
         // _showAdhocSection's logic is assumed to be handled elsewhere
         s += adhocCode ?? '';
       }
@@ -251,7 +233,7 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5DEB3), // claWheat equivalent
+      backgroundColor: Colors.white, // claWheat equivalent
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -262,7 +244,7 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'XingPics - v18.00',
+                  'XingPics - v19',
                   style: TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
@@ -402,24 +384,11 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
             ),
 
             buildDropdown(
-              label: 'Adhoc',
+              label: 'Adhoc Code',
               manager: _dropdownManager,
               onChanged: (val) {
                 setState(() {
-                  _dropdownManager.updateSelection('Adhoc', val, () {});
-                });
-                _updateFileName();
-              },
-            ),
-
-            buildDropdown(
-              label: 'Image Seq',
-              manager: _dropdownManager,
-              onChanged: (val) {
-                setState(() {
-                  _dropdownManager.updateSelection('Image Seq', val, () {
-                    // optionally reset dependent fields
-                  });
+                  _dropdownManager.updateSelection('Adhoc Code', val, () {});
                 });
                 _updateFileName();
               },
@@ -458,8 +427,9 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      _showSnackBar(context, 'Exit clicked!');
+                      _showSnackBar(context, 'Exiting the app ...');
                       // In a real app, you might navigate back or close the app
+                      exit(0);
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -502,7 +472,7 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 80),
           ],
         ),
       ),
@@ -628,7 +598,26 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
         await saveDir.create(recursive: true);
       }
 
-      final String savePath = path.join(saveDir.path, fileName);
+      //appending incrementer to file name if it already exists
+
+      String baseName = path.basenameWithoutExtension(fileName);
+      String extension = path.extension(fileName);
+      String finalFileName = fileName;
+
+      // Check if the initial file name exists
+      String initialSavePath = path.join(saveDir.path, fileName);
+      if (await File(initialSavePath).exists()) {
+        int counter = 1; // Start counter at 1 for the first duplicate
+        // Keep incrementing until a unique file name is found
+        while (await File(
+          path.join(saveDir.path, '$baseName-$counter$extension'),
+        ).exists()) {
+          counter++;
+        }
+        finalFileName = '$baseName-$counter$extension';
+      }
+
+      final String savePath = path.join(saveDir.path, finalFileName);
       final File savedImage = await File(photo.path).copy(savePath);
 
       _showSnackBar(context, '✅ Saved to:\n${savedImage.path}');

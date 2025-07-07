@@ -38,14 +38,14 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'XingPics',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
         fontFamily: 'Inter', // Applying Inter font
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('XingPics v18'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Text('XingPics'),
+          backgroundColor: Colors.blue, // Use the primary color from the seed
         ),
         body: IndexedStack(
           // Use IndexedStack to preserve state of pages
