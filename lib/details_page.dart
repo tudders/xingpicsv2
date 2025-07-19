@@ -202,7 +202,7 @@ class _DetailsPageState extends State<DetailsPage> with WidgetsBindingObserver {
       }
 
       s += photoCode ?? '';
-      if (dropdownManager.selections['Approach'] == 'Adhoc Code') {
+      if (dropdownManager.selections['Approach'] == 'Adhoc') {
         // _showAdhocSection's logic is assumed to be handled elsewhere
         s += adhocCode ?? '';
       }

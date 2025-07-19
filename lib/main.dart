@@ -1,8 +1,17 @@
 // main.dart
 import 'package:flutter/material.dart';
 import 'details_page.dart'; // Import the new page
+import 'package:sentry_flutter/sentry_flutter.dart';
 
-void main() {
+void main() async {
+  await SentryFlutter.init((options) {
+    options.dsn =
+        'https://85395c188d6b20befea892fcaee59b6a@o4506725654265856.ingest.us.sentry.io/4509692851585024';
+    // Adds request headers and IP for users,
+    // visit: https://docs.sentry.io/platforms/dart/data-management/data-collected/ for more info
+    options.sendDefaultPii = true;
+  }, appRunner: () => runApp(SentryWidget(child: MyApp())));
+
   runApp(const MyApp());
 }
 
